@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🕵️‍♂️ Detektiv Sudoku — TikTok LIVE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="app-layout" id="appLayout">
+    <!-- 9:16 TIKTOK PORTRAIT STAGE -->
+    <div class="stage-wrap">
+      <div class="stage-9x16" id="stage">
+        <canvas id="fxCanvas"></canvas>
+
+        <!-- TOP BAR -->
+        <header class="top-bar">
+          <div class="brand-pill">🕵️‍♂️ DETEKTİV SUDOKU <span class="round-chip" id="roundChip">#1</span></div>
+          <div class="map-pill" id="mapTitle">🚗 AVTOSERVİS</div>
+          <div class="timer-pill" id="timerPill">⏱ <span id="timeLeft">150</span>s</div>
+        </header>
+
+        <!-- MINI RULES + PROGRESS BAR -->
+        <div class="rules-bar">
+          <span>📐 Hər sətir & sütunda <b>1 nəfər</b></span>
+          <span>🔎 Yanında = <b>eyni otaq (sol/sağ/üst/alt)</b></span>
+          <span class="like-chip">❤️ <b id="likePct">0%</b></span>
+        </div>
+
+        <!-- 6 ILLUSTRATED SUSPECT & WITNESS CARDS -->
+        <section class="cast-grid" id="castGrid"></section>
+
+        <!-- ILLUSTRATED 6x6 ARCHITECTURAL MAP -->
+        <section class="map-stage" id="mapStage">
+          <canvas id="mapCanvas"></canvas>
+          <div class="round-overlay hidden" id="roundOverlay">
+            <div class="overlay-badge" id="overlayBadge">🏆 OĞRU TAPILDI!</div>
+            <div class="overlay-culprit" id="overlayCulprit">MURAD</div>
+            <div class="overlay-sub" id="overlaySub">Elvin (+150 xal)</div>
+          </div>
+        </section>
+
+        <!-- CHAT COMMANDS BAR -->
+        <div class="cmd-bar">
+          <span>📍 Yerləşdir: <b>1 1B</b> (və ya <b>Ad 1B</b>) = <b>+30 xal</b></span>
+          <span>🎯 Tap: <b>ogru [Ad]</b> = <b>+150 xal</b></span>
+        </div>
+
+        <!-- BOTTOM HUD: FEED + LEADERBOARD -->
+        <footer class="bottom-hud">
+          <div class="feed-strip">
+            <span>💬</span>
+            <span id="feedText">Şübhəliləri xəritəyə yerləşdir və oğrunu tap!</span>
+            <span class="music-pill hidden" id="overlayMusicBadge">🎵 Musiqi</span>
+          </div>
+          <div class="lb-card">
+            <div class="lb-head">
+              <span>🏆 ƏN YAXŞI DETEKTİVLƏR (TOP 3)</span>
+              <span class="live-tag" id="liveBadge">⚫ Offline</span>
+            </div>
+            <div class="lb-list" id="lbList">
+              <div class="lb-empty">İlk tapan lider olur! 🕵️‍♂️</div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- HOST CONTROL PANEL (Hidden automatically when ?overlay=1) -->
+    <aside class="host-panel" id="hostPanel">
+      <div class="hp-header">
+        <h2>🎛️ Detektiv Studiyası</h2>
+        <p>TikTok LIVE Detektiv Sudoku — Riyazi yoxlanılmış tək-cavablı xəritələr</p>
+      </div>
+
+      <div class="hp-card">
+        <label class="hp-label">TikTok LIVE Studio / OBS Linki</label>
+        <div class="hp-row">
+          <input type="text" id="obsUrlInput" readonly />
+          <button class="btn btn-gold" id="btnCopyUrl">📋 Kopyala</button>
+        </div>
+      </div>
+
+      <div class="hp-card secret-card">
+        <label class="hp-label">🕵️ Aparıcı Cavabı (Yalnız sən görürsən)</label>
+        <div class="secret-culprit" id="secretCulprit">Oğru: —</div>
+        <div class="secret-coords" id="secretCoords">—</div>
+      </div>
+
+      <div class="hp-card">
+        <label class="hp-label">TikTok Kanal Bağlantısı</label>
+        <div class="hp-row">
+          <input type="text" id="tiktokUserInput" placeholder="bakuremixlab" />
+          <button class="btn btn-green" id="btnConnect">Qoşul</button>
+          <button class="btn btn-red" id="btnDisconnect">Ayır</button>
+        </div>
+        <div class="hp-status" id="hostStatus">Gözlənilir...</div>
+      </div>
+
+      <div class="hp-card">
+        <label class="hp-label">Oyun İdarəetməsi</label>
+        <div class="hp-grid-2">
+          <button class="btn btn-blue" id="btnRevealHint">💡 1 Nəfəri Yerləşdir</button>
+          <button class="btn btn-gold" id="btnNextPuzzle">⏭️ Növbəti Xəritə</button>
+          <button class="btn btn-slate" id="btnToggleBots">🤖 Demo Botlar: BAĞLI</button>
+          <button class="btn btn-red" id="btnResetScores">🔄 Xalları Sıfırla</button>
+        </div>
+        <div class="map-btn-grid">
+          <button class="map-pick-btn" data-map="car_repair">🚗 Avtoservis</button>
+          <button class="map-pick-btn" data-map="bank_vault">🏦 Bank</button>
+          <button class="map-pick-btn" data-map="hotel_lobby">🏨 Otel</button>
+          <button class="map-pick-btn" data-map="museum_hall">🏛️ Muzey</button>
+          <button class="map-pick-btn" data-map="cafe_kitchen">☕ Kafe</button>
+          <button class="map-pick-btn" data-map="luxury_yacht">🚢 Yaxta</button>
+        </div>
+        <div class="hp-row" style="margin-top:8px;">
+          <input type="text" id="testCmdInput" placeholder="Test: 1 1B və ya ogru Murad..." />
+          <button class="btn btn-green" id="btnSendTestCmd">Göndər</button>
+        </div>
+        <div class="hp-status" id="cmdFeedback"></div>
+      </div>
+
+      <!-- BACKGROUND MUSIC STUDIO -->
+      <div class="hp-card music-studio">
+        <label class="hp-label">🎵 Arxa Fon Musiqisi</label>
+        <div class="music-now" id="musicNowLabel">Dayandırılıb: Detektiv Gərginlik</div>
+        <div class="hp-grid-2" style="margin-top:8px;">
+          <button class="btn btn-green" id="btnMusicPlayPause">▶ Başlat</button>
+          <button class="btn btn-slate" id="btnMusicLoop">🔁 Təkrar: AÇIQ</button>
+        </div>
+        <div class="vol-row">
+          <span>🔊 Səs: <b id="volVal">40%</b></span>
+          <input type="range" id="musicVolume" min="0" max="100" value="40" />
+        </div>
+        <label class="chk-row">
+          <input type="checkbox" id="chkOverlayMusic" checked />
+          <span>TikTok Studio Overlay-də də səsləndir</span>
+        </label>
+        <div class="upload-box">
+          <input type="file" id="musicFileInput" accept="audio/*" hidden />
+          <button class="btn btn-gold" id="btnUploadMusic" style="width:100%;">📂 MP3 / Musiqi Yüklə</button>
+          <div class="upload-hint" id="uploadStatus">MP3, WAV, OGG, M4A (maks 20MB)</div>
+        </div>
+        <div class="hp-row" style="margin-top:8px;">
+          <input type="text" id="musicUrlInput" placeholder="YouTube və ya MP3 linki yapışdır..." />
+          <button class="btn btn-blue" id="btnApplyMusicUrl">Qoş</button>
+        </div>
+        <div class="upload-hint" id="urlStatus">YouTube və ya birbaşa MP3 linki dəstəklənir</div>
+        <div class="preset-row">
+          <button class="preset-btn active" data-preset="detective">🕵️ Detektiv</button>
+          <button class="preset-btn" data-preset="lofi">🌙 Lofi</button>
+          <button class="preset-btn" data-preset="pulse">⚡ Ritm</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div id="ytPlayerBox" class="yt-player-box hidden"><div id="ytPlayerMount"></div></div>
+  <audio id="bgAudioEl" crossorigin="anonymous"></audio>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
